@@ -1,0 +1,6 @@
+# Python sanal ortamı
+danilo_env/
+
+# Python ile ilgili genel olarak takip edilmemesi gerekenler
+__pycache__/
+*.pyc
