@@ -2,31 +2,64 @@ import speech_recognition as sr
 from gtts import gTTS
 import os
 import time
-from core.communication import ses_komutu_al, seslendir
+import speech_recognition as sr
+import time
+from core.communication import ses_komutu_al, seslendir,niyet_ve_varlik_analizi
+from core.data_manager import save_new_constraint
+from core.logic import filter_recipes_by_constraints
+import re
 
-# --- Ana Döngü ---
+
 def ana_program():
     r = sr.Recognizer()
-    seslendir("Merhaba, ben Danilo, mutfak asistanınız. Nasıl yardımcı olabilirim?")
-
+    seslendir("Merhaba, ben Danilo. Başlıyorum ve dinliyorum.")
+    
     while True:
         metin_komut = ses_komutu_al(r)
         
         if metin_komut:
-            if "danilo" in metin_komut or "danilo" in metin_komut:
-
-                temiz_komut = metin_komut.replace("danilo", "").replace("danilo", "").strip()
-                
-                if temiz_komut:
-                    seslendir(f"Bana şunu mu söylediniz: '{temiz_komut}'")
-                else:
-                    seslendir("Sadece adımı söylediniz, komutunuz nedir?")
+            komut = metin_komut.lower()
             
-            elif "kapat" in metin_komut or "dur" in metin_komut:
-                seslendir("Görüşmek üzere, iyi günler dilerim.")
-                break
+            # 1. TEMİZLEME: Danilo/şefses kelimelerini komuttan çıkar (varsa)
+            temiz_komut = komut.replace("şef ses", "").replace("şefses", "").replace("danilo", "").strip()
+            
+            # 2. KOMUT TANIMA (UYANDIRMA KONTROLÜ OLMADAN DOĞRUDAN NİYET ANALİZİ)
+            
+            # Eğer komut tamamen boş değilse (sadece "Danilo" demediyse)
+            if temiz_komut:
+                niyet, varliklar = niyet_ve_varlik_analizi(temiz_komut)
+                
+                # ... (Niyetlerinizi burada işleyin)
+                if niyet == "KisitlamaTanimlama":
+                    # Örn: "Ayşe'nin patlıcana alerjisi var."
+                    # ... (mantık kodu)
+                    malzeme = varliklar.get('Malzeme')
+                    if malzeme:
+                        seslendir(f"{malzeme} kısıtlaması kaydediliyor.")
+                        # ... (kaydetme mantığının geri kalanı)
+                    else:
+                        seslendir("Kısıtlamak istediğiniz malzemeyi anlamadım.")
+                
+                elif niyet == "MenuSorgulama":
+                    # Örn: "Akşama ne yapabilirim?"
+                    # ... (mantık kodu)
+                    uygun_tarifler = filter_recipes_by_constraints()
+                    seslendir(f"Tüm kısıtlamalara uygun {len(uygun_tarifler)} tarif buldum.")
+                    
+                # ÇIKIŞ KOMUTU
+                elif "kapat" in temiz_komut or "dur" in temiz_komut:
+                    seslendir("Görüşmek üzere, iyi günler dilerim.")
+                    break
+                    
+                elif niyet == "bilinmiyor":
+                    # Eğer komut anlamlıydı ama niş alan dışındaysa
+                    seslendir(f"'{temiz_komut}' komutunuzu mutfak asistanı olarak değerlendiremedim.")
+            
+            else:
+                # Kullanıcı sadece "Danilo" dedi
+                seslendir("Adımı söylediğiniz, komutunuz nedir?")
         
-        time.sleep(1)
+        time.sleep(0.5)
 
 if __name__ == "__main__":
     ana_program()
