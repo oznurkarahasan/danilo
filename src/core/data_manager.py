@@ -7,7 +7,7 @@ import os
 USER_CONSTRAINTS_FILE = os.path.join('data', 'processed', 'user_constraints.json')
 RECIPES_FILE = os.path.join('data', 'processed', 'recipes_db.json')
 
-# --- Kısıtlama Yönetimi ---
+# --- Kısıtlama dddYönetimi ---
 
 def load_constraints():
     """Kullanıcı kısıtlamalarını JSON dosyasından yükler."""
