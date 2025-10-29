@@ -9,7 +9,7 @@ def filter_recipes_by_constraints():
     uygun_tarifler = []
 
     if not yasakli_malzemeler:
-        return tarifler # Kısıtlama yoksa tüm tarifleri döndür
+        return tarifler # Kısıtlama yoksa tüm tarifleri döndürrrr
         
     for tarif in tarifler:
         uygun = True
